@@ -44,12 +44,12 @@ function handleGetSignature(request, response){
     var key = config.getSettings().redisHouseholdAssetsPrefix + householdHash;
     redis.getReadClient().sismember(key, request.query.id, function(err, res) {
         if (err) {
-            response.status(500).json({status: 'failure'});
+            response.status(500).json({error: 'failure'});
             return;
         }
 
         if (res) {
-            response.status(200).json({status: 'exists'});
+            response.status(200).json({error: 'exists'});
             return;
         }
 
