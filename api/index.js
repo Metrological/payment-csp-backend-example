@@ -88,15 +88,15 @@ function handleGetSignature(request, response){
         switch(request.query.id) {
             case '1':
                 purchaseParams.description = 'The first test asset';
-                purchaseParams.price = 1;
+                purchaseParams.price = 0;
                 break;
             case '2':
                 purchaseParams.description = 'The second test asset';
-                purchaseParams.price = 2;
+                purchaseParams.price = 25;
                 break;
             case '3':
                 purchaseParams.description = 'The third test asset';
-                purchaseParams.price = 3;
+                purchaseParams.price = 100;
                 break;
             default:
                 response.status(404).json({error: 'asset does not exist'});
