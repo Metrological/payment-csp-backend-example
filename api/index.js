@@ -41,37 +41,50 @@ function handleGetSignature(request, response){
         return;
     }
 
-    var purchaseParams = {
-        adult: false,
-        currency: 'EUR',
-        timestamp: (new Date()).getTime()
-    };
-
-    switch(request.query.id) {
-        case '1':
-            purchaseParams.id = 'test1';
-            purchaseParams.description = 'The first test asset';
-            purchaseParams.price = 1;
-            break;
-        case '2':
-            purchaseParams.id = 'test2';
-            purchaseParams.description = 'The second test asset';
-            purchaseParams.price = 2;
-            break;
-        case '3':
-            purchaseParams.id = 'test3';
-            purchaseParams.description = 'The third test asset';
-            purchaseParams.price = 3;
-            break;
-        default:
-            response.status(404).json({error: 'asset does not exist'});
+    var key = config.getSettings().redisHouseholdAssetsPrefix + householdHash;
+    redis.getReadClient().sismember(key, request.query.id, function(err, res) {
+        if (err) {
+            response.status(500).json({status: 'failure'});
             return;
-    }
+        }
 
-    purchaseParams.household = householdHash;
-    purchaseParams.signature = signatureHelper.generateSignature(purchaseParams, config.getSettings().applicationBillingKey);
+        if (res) {
+            response.status(200).json({status: 'exists'});
+            return;
+        }
 
-    response.status(200).json(purchaseParams);
+        var purchaseParams = {
+            adult: false,
+            currency: 'EUR',
+            timestamp: (new Date()).getTime()
+        };
+
+        purchaseParams.id = request.query.id;
+
+        switch(request.query.id) {
+            case '1':
+                purchaseParams.description = 'The first test asset';
+                purchaseParams.price = 1;
+                break;
+            case '2':
+                purchaseParams.description = 'The second test asset';
+                purchaseParams.price = 2;
+                break;
+            case '3':
+                purchaseParams.description = 'The third test asset';
+                purchaseParams.price = 3;
+                break;
+            default:
+                response.status(404).json({error: 'asset does not exist'});
+                return;
+        }
+
+        purchaseParams.household = householdHash;
+        purchaseParams.signature = signatureHelper.generateSignature(purchaseParams, config.getSettings().applicationBillingKey);
+
+        response.status(200).json(purchaseParams);
+    });
+
 }
 
 function handleSave(request, response){
