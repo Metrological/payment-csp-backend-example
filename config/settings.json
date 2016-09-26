@@ -1,0 +1,13 @@
+{
+    "all": {
+        "workers": 2,
+        "port": 3333,
+        "redisHouseholdAssetsPrefix": "payment-csp-example:"
+    },
+    "dev": {
+    },
+    "production": {
+        "workers": 2,
+        "port": 80
+    }
+}
