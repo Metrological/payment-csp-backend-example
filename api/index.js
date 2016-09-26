@@ -7,6 +7,7 @@ var loadRoutes = function(app){
     app.get('/get-assets', handleGetAssets);
     app.get('/get-signature', handleGetSignature);
     app.post('/save', handleSave);
+    app.get('/delete-assets', handleDeleteAssets);
 
     app.all('*',function(req,res){
         res.status(404).end();
@@ -31,6 +32,23 @@ function handleGetAssets(request, response){
         }
 
         response.status(200).json({status: 'ok', assets: res});
+    });
+}
+
+function handleDeleteAssets(request, response){
+    var householdHash = request.query.household;
+    if (!householdHash) {
+        response.status(404).json({error: 'household does not exist'});
+        return;
+    }
+
+    var key = config.getSettings().redisHouseholdAssetsPrefix + householdHash;
+    redis.getReadClient().del(key, function(err, res) {
+        if (err) {
+            response.status(500).json({status: 'failure'});
+        }
+
+        response.status(200).json({status: 'ok', assets: []});
     });
 }
 
