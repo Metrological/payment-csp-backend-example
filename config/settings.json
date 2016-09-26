@@ -1,8 +1,9 @@
 {
     "all": {
         "workers": 2,
-        "port": 3333,
-        "redisHouseholdAssetsPrefix": "payment-csp-example:"
+        "port": 3789,
+        "redisHouseholdAssetsPrefix": "payment-csp-example:",
+        "applicationBillingKey": "m&(Kp*T3KT%*JtT}?M$asvU|5W2b&f-("
     },
     "dev": {
     },

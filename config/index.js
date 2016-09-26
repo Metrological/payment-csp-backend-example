@@ -2,6 +2,7 @@ var allSettings = require('./settings');
 var _ = require('lodash');
 var settings = {}, env;
 var redis = require('metrological-redis');
+var bodyParser = require('body-parser');
 
 var init = function(cb){
     env = process.env.NODE_ENV || 'dev';
