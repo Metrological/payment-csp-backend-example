@@ -30,7 +30,7 @@ function handleGetAssets(request, response){
             response.status(500).json({status: 'failure'});
         }
 
-        response.status(200).json({status: 'ok', apps: res});
+        response.status(200).json({status: 'ok', assets: res});
     });
 }
 
