@@ -19,6 +19,8 @@ module.exports = {
 };
 
 function handleGetAssets(request, response){
+    response.header('Access-Control-Allow-Origin', '*');
+
     var householdHash = request.query.household;
     if (!householdHash) {
         response.status(404).json({error: 'household does not exist'});
@@ -36,6 +38,8 @@ function handleGetAssets(request, response){
 }
 
 function handleDeleteAssets(request, response){
+    response.header('Access-Control-Allow-Origin', '*');
+
     var householdHash = request.query.household;
     if (!householdHash) {
         response.status(404).json({error: 'household does not exist'});
@@ -53,6 +57,8 @@ function handleDeleteAssets(request, response){
 }
 
 function handleGetSignature(request, response){
+    response.header('Access-Control-Allow-Origin', '*');
+
     var householdHash = request.query.household;
     if (!householdHash) {
         response.status(404).json({error: 'household does not exist'});
@@ -106,6 +112,8 @@ function handleGetSignature(request, response){
 }
 
 function handleSave(request, response){
+    response.header('Access-Control-Allow-Origin', '*');
+
     var transaction = request.body;
 
     // CSP: check signature.
