@@ -40,7 +40,7 @@ function handleSubscriptionStatus(request, response) {
             return response.status(500).json({status: 'failure'});
         }
 
-        response.status(200).json({status: 'ok', ttl: ttl});
+        response.status(200).json({status: 'ok', ttl: Math.max(0, ttl)});
     });
 }
 
