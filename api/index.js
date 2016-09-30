@@ -2,14 +2,20 @@ var config = require('../config');
 var async = require('async');
 var redis = require('metrological-redis');
 var signatureHelper = require('./signatureHelper');
+var request = require('request');
 
 var loadRoutes = function(app){
+    // (Recurring) subscriptions.
     app.get('/get-subscription-status', handleSubscriptionStatus);
     app.get('/get-subscription-signature', handleSubscriptionSignature);
     app.post('/save-subscription', handleSaveSubscription);
+
+    // Assets.
     app.get('/get-assets', handleGetAssets);
     app.get('/get-signature', handleGetSignature);
     app.post('/save', handleSave);
+
+    // Test.
     app.get('/delete-assets', handleDeleteAssets);
 
     app.all('*',function(req,res){
@@ -18,8 +24,162 @@ var loadRoutes = function(app){
 };
 
 module.exports = {
-    loadRoutes: loadRoutes
+    loadRoutes: loadRoutes,
+    invoiceSubscriptions: invoiceSubscriptions
 };
+
+// Check (at least) once per day. Preferably this can be done via a crontab task.
+function invoiceSubscriptions(cb) {
+    redis.getWriteClient().hvals(config.getSettings().redisRecurringSubscriptions, function(err, subscriptions) {
+        if (err) {
+            console.error("can't invoice subscriptions", err);
+            return;
+        }
+
+        var tasks = [];
+        for (var i = 0, n = subscriptions.length; i < n; i++) {
+            var subscription = JSON.parse(subscriptions[i]);
+            (function(subscription) {
+                tasks.push(function(cb) {
+                    renewSubscription(subscription, function(err) {
+                        if (err) {
+                            console.error('error in subscription renewal', err, subscription);
+                        }
+                        cb();
+                    });
+                });
+            })(subscription);
+        }
+
+        console.log('subscriptions found: ', subscriptions.length);
+        async.parallelLimit(tasks, 5, function(err) {
+            if (err) {
+                console.error('error', err);
+            } else {
+                console.log('all subscriptions handled.')
+            }
+            cb(err);
+        });
+    });
+}
+
+function renewSubscription(subscription, cb) {
+    var key = getSubscriptionKey(subscription.household);
+    redis.getWriteClient().ttl(key, function(err, res) {
+        var ttl = res || 0;
+
+        if (ttl < 2 * 24 * 3600) {
+            // We need to upgrade the subscription.
+            console.log('needs upgrade', subscription);
+
+            // It's best to first increase TTL and then post request.
+            // Because it would be really bad if the recurring payment for some household would be done multiple times!
+            // We can reset the TTL later if the payment goes wrong or the subscription is invalid.
+
+            var resetTtl = function() {
+                redis.getWriteClient().expire(key, ttl);
+            };
+
+            // Calculate new TTL.
+            var d = new Date();
+            d.setTime(d.getTime() + ttl * 1000);
+            d.setMonth(d.getMonth() + 1);
+            var newTtl = Math.floor((d.getTime() - Date.now()) / 1000);
+
+            var key = getSubscriptionKey(subscription.household);
+
+            var setTtl = null;
+            if (ttl < 20) {
+                // The key was (possibly) removed from the database so let's re-enter it.
+                setTtl = function(cb) {
+                    redis.getWriteClient().setex(key, newTtl, JSON.stringify(subscription), cb);
+                };
+            } else {
+                setTtl = function(cb) {
+                    redis.getWriteClient().expire(key, newTtl, cb);
+                };
+            }
+
+            setTtl(function(err) {
+                if (err) {
+                    response.status(400).json({status: 'failure'});
+                }
+
+                // Send payment to billing server.
+                var purchaseRequest = {
+                    id: 'recurring_payment_' + (new Date()).toISOString() + '_' + subscription.transactionId,
+                    description: 'Recurring payment for subscription',
+                    currency: 'EUR',
+                    price: 499,
+                    household: subscription.household,
+                    adult: false,
+                    timestamp: Date.now(),
+                    subscriptionId: subscription.transactionId,
+                    ttl: newTtl
+                };
+                purchaseRequest.signature = signatureHelper.generateSignature(purchaseRequest, config.getSettings().applicationBillingKey);
+                var recurringPurchaseRequest = {
+                    purchase: purchaseRequest,
+                    type: 'subscription'
+                };
+
+                request.post({url: config.getSettings().billingHost, body: recurringPurchaseRequest, json: true}, function (err, res, body) {
+                    /*
+                     In case of error, the response is: {errors: [{code: 5000, message: 'Unexpected error'}]}
+                     Possible error codes:
+                     4000 Missing Parameters One or more parameters where missing from the request.
+                     4001 Currency Unknown An unknown currency was used.
+                     4002 Household Non-existent The household ID cannot be found in the system.
+                     4003 Operator Non-existent The operator cannot be found in the system.
+                     4004 Invalid Signature The signature used is not valid.
+                     4005 App Already Owned The user already owns this app.
+                     4006 Timestamp expired, user did not complete the payment dialog in time.
+                     4007 Bad or revoked subscription id.
+                     4010 Price Not Accepted The price was not accepted.
+                     4011 Credit Limit Reached The user has no more credit to complete the transaction.
+                     5000 Unexpected Error Something has gone wrong at Metrological.
+                     5001 Unexpected Error Something has gone wrong at the operator.
+                     */
+                    if (err) {
+                        resetTtl();
+
+                        // Serious: internal error. Stop all.
+                        return cb(err);
+                    }
+
+                    if (res.statusCode == 200) {
+                        // Success!
+                        console.log('payment response', body);
+                        cb();
+                    } else if (res.statusCode == 400) {
+                        if (body.code === 4007) {
+                            // Subscription revoked or original transaction gone: cancel subscription.
+                            console.warn('Forcefully cancelled subscription', body, subscription);
+                            redis.getWriteClient().hdel(config.getSettings().redisRecurringSubscriptions, subscription.transactionId, function(err) {
+                                if (err) {
+                                    console.error('Problem deleting recurring subscription', err, subscription);
+                                }
+                                resetTtl();
+                                cb();
+                            });
+                        } else {
+                            // This is serious: there is a bug in your code. Cancel all and investigate the issue.
+                            console.error('Error in payment', body, subscription);
+                            cb(new Error('Error in payment'));
+                        }
+                    } else {
+                        // Serious: internal error. Stop all.
+                        resetTtl();
+                        return cb(body);
+                    }
+                });
+            });
+        } else {
+            // Subscription still valid.
+            cb();
+        }
+    });
+}
 
 function getSubscriptionKey(householdHash) {
     return config.getSettings().redisHouseholdAssetsPrefix + householdHash + ":subscription";
@@ -56,6 +216,7 @@ function handleSubscriptionSignature(request, response) {
     var ttl = 0;
     var price = 0;
     var description;
+    var isRecurring = false;
     switch (request.query.period) {
         case '24h':
             ttl = 24 * 3600;
@@ -68,6 +229,7 @@ function handleSubscriptionSignature(request, response) {
             ttl = (d.getTime() - Date.now()) / 1000;
             price = 499;
             description = 'month subscription';
+            isRecurring = true;
             break;
         default:
             response.status(404).json({error: 'period not specified'});
@@ -94,7 +256,8 @@ function handleSubscriptionSignature(request, response) {
             description: description,
             timestamp: (new Date()).getTime(),
             household: householdHash,
-            ttl: ttl
+            ttl: ttl,
+            subscription: isRecurring // Whether or not recurring payment requests may be done.
         };
 
         purchaseParams.signature = signatureHelper.generateSignature(purchaseParams, config.getSettings().applicationBillingKey);
@@ -124,9 +287,18 @@ function handleSaveSubscription(request, response){
     }
 
     var key = getSubscriptionKey(transaction.household);
-    redis.getWriteClient().setex(key, transaction.ttl, transaction.id, function(err) {
+    redis.getWriteClient().setex(key, transaction.ttl, transaction.transactionId, function(err) {
         if (err) {
             response.status(400).json({status: 'failure'});
+        }
+
+        if (transaction.subscription) {
+            // Add to subscriptions.
+            redis.getWriteClient().hset(config.getSettings().redisRecurringSubscriptions, transaction.transactionId, JSON.stringify(transaction), function(err) {
+                if (err) {
+                    console.error('Could not schedule subscription for automatic recurring payments..', transaction);
+                }
+            });
         }
 
         response.status(200).json({status: 'ok', ttl: transaction.ttl});

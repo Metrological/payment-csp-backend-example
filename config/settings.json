@@ -3,7 +3,9 @@
         "workers": 2,
         "port": 3789,
         "redisHouseholdAssetsPrefix": "payment-csp-example:",
-        "applicationBillingKey": "N{47&?tcs9_23za|vPUGG@UljEtm%lE^"
+        "redisRecurringSubscriptions": "payment-csp-example-subscriptions",
+        "applicationBillingKey": "N{47&?tcs9_23za|vPUGG@UljEtm%lE^",
+        "billingHost": "https://payment-sdk.metrological.com"
     },
     "dev": {
     },
