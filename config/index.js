@@ -3,6 +3,7 @@ var _ = require('lodash');
 var settings = {}, env;
 var redis = require('metrological-redis');
 var bodyParser = require('body-parser');
+var expressRequestLogger = require('express-request-logger');
 
 var init = function(cb){
     env = process.env.NODE_ENV || 'dev';
@@ -25,6 +26,12 @@ var init = function(cb){
 var initExpress = function(app){
     app.use(bodyParser.json());
     app.disable('x-powered-by');
+
+    // Add express request logging.
+    expressRequestLogger.configure(
+        app,
+        {projectName: "payment-csp-backend-example"}
+    );
 
     var port = settings.port;
     app.listen(port,function () {
