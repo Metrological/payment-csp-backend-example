@@ -63,6 +63,14 @@ function invoiceSubscriptions(cb) {
     });
 }
 
+function getPrice(operator, country, eurocents) {
+    if (country == 'qa') {
+        return {currency: 'QAR', price: eurocents * 3};
+    } else {
+        return {currency: 'EUR', price: eurocents};
+    }
+}
+
 function renewSubscription(subscription, cb) {
     var key = getSubscriptionKey(subscription.household);
     redis.getWriteClient().ttl(key, function(err, res) {
@@ -105,12 +113,14 @@ function renewSubscription(subscription, cb) {
                     response.status(400).json({status: 'failure'});
                 }
 
+                var priceObj = getPrice(subscription.operator, subscription.country, 499);
+
                 // Send payment to billing server.
                 var purchaseRequest = {
                     id: 'recurring_payment_' + (new Date()).toISOString() + '_' + subscription.transactionId,
                     description: 'Recurring payment for subscription',
-                    currency: 'EUR',
-                    price: 499,
+                    currency: priceObj.currency,
+                    price: priceObj.price,
                     household: subscription.household,
                     adult: false,
                     timestamp: Date.now(),
@@ -248,10 +258,12 @@ function handleSubscriptionSignature(request, response) {
             return;
         }
 
+        var priceObj = getPrice(request.query.operator || '', request.query.country || '', price);
+
         var purchaseParams = {
             adult: false,
-            currency: 'EUR',
-            price: price,
+            currency: priceObj.currency,
+            price: priceObj.price,
             id: 'subscription_' + request.query.period,
             description: description,
             timestamp: (new Date()).getTime(),
@@ -366,7 +378,6 @@ function handleGetSignature(request, response){
 
         var purchaseParams = {
             adult: false,
-            currency: 'EUR',
             timestamp: (new Date()).getTime()
         };
 
@@ -393,6 +404,10 @@ function handleGetSignature(request, response){
                 response.status(404).json({error: 'asset does not exist'});
                 return;
         }
+
+        var priceObj = getPrice(request.query.operator || '', request.query.country || '', purchaseParams.price);
+        purchaseParams.currency = priceObj.currency;
+        purchaseParams.price = priceObj.price;
 
         purchaseParams.household = householdHash;
         purchaseParams.signature = signatureHelper.generateSignature(purchaseParams, config.getSettings().applicationBillingKey);
