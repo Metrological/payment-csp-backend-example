@@ -33,6 +33,16 @@ var initExpress = function(app){
         {projectName: "payment-csp-backend-example"}
     );
 
+    app.use(function(req, res, next) {
+        if (res.rLog) {
+            if (req.url == '/' && req.method == 'GET') {
+                // Ignore nagios calls.
+                res.rLog.ignore();
+            }
+        }
+        next();
+    });
+
     var port = settings.port;
     app.listen(port,function () {
         console.info('Listening on ' + port);

@@ -100,7 +100,7 @@ function renewSubscription(subscription, cb) {
             if (ttl < 20) {
                 // The key was (possibly) removed from the database so let's re-enter it.
                 setTtl = function(cb) {
-                    redis.getWriteClient().setex(key, newTtl, JSON.stringify(subscription), cb);
+                    redis.getWriteClient().setex([key, newTtl, JSON.stringify(subscription)], cb);
                 };
             } else {
                 setTtl = function(cb) {
@@ -299,7 +299,7 @@ function handleSaveSubscription(request, response){
     }
 
     var key = getSubscriptionKey(transaction.household);
-    redis.getWriteClient().setex(key, transaction.ttl, transaction.transactionId, function(err) {
+    redis.getWriteClient().setex([key, transaction.ttl, transaction.transactionId], function(err) {
         if (err) {
             response.status(400).json({status: 'failure'});
         }
