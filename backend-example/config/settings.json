@@ -1,0 +1,15 @@
+{
+    "all": {
+        "workers": 2,
+        "port": 3789,
+        "redisHouseholdAssetsPrefix": "payment-csp-example:",
+        "redisRecurringSubscriptions": "payment-csp-example-subscriptions",
+        "applicationBillingKey": "SECRET: CREATE AT http://dashboard.metrological.com/ (my applications > application > info > refresh billing key)"
+    },
+    "dev": {
+    },
+    "production": {
+        "workers": 2,
+        "port": 80
+    }
+}

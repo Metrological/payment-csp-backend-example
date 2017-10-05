@@ -1,2 +1,5 @@
+node_modules
 /node_modules
-.idea
+__test.js
+package-lock.json
+readme.odt
