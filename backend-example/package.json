@@ -1,5 +1,5 @@
 {
-  "name": "MafMapsExample",
+  "name": "MafMpsExample",
   "author": "Bas van Meurs",
   "dependencies": {
     "body-parser": "~1.15.2",
