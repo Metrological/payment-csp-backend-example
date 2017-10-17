@@ -82,13 +82,13 @@ function handleAssetSignature(request, response) {
 
     var asset = ASSETS[request.query.assetId];
     var purchaseParams = {
-        adult: false,
-        currency: CURRENCY,
-        price: asset.price,
-        id: request.query.assetId,
-        description: asset.title,
-        timestamp: (new Date()).getTime(),  // Required.
-        household: request.query.household
+        adult: false, //Indicates if the asset contains adult content
+        currency: CURRENCY, // i.e. EUR, QAR, USD
+        price: asset.price, // Price of the asset including VAT per country
+        id: request.query.assetId, //Id of the asset that should be both trackable by operator and own backend
+        description: asset.title, // Asset Title shown in the dialog
+        timestamp: (new Date()).getTime(),  // Helps validating the payment
+        household: request.query.household // Indicates who bought the asset
     };
 
     purchaseParams.signature = signatureHelper.generateSignature(purchaseParams, config.getSettings().applicationBillingKey);
