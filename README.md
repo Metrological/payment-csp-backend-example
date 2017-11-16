@@ -36,8 +36,9 @@ Please consider a test/production endpoint. It may be handy to provide a method 
 You can run the full example yourself:
 1. Use the maf-sdk to run the 'payment example app' as bundled with this document
 2. Install the MPS API endpoint example Nodejs (npm install)
-3. Run the Nodejs service
-4. Navigate to the app in your browser; the Nodejs service should now receive the API calls from the app
+3. Make sure that you have Redis installed
+4. Run the Nodejs service
+5. Navigate to the app in your browser; the Nodejs service should now receive the API calls from the app
 
 # And now?
 After you have created a fully working example (both an app and backend), that works in the MAF SDK (https://github.com/Metrological/maf3-sdk), your app should be able to work in production. For putting apps with in-app payments in production, we need to have an agreement with you and the operator(s) involved. Furthermore, we require that your backend service runs on HTTPS for security reasons.

@@ -1,0 +1,19 @@
+{
+	"identifier": "com.metrological.app.PaymentTemplate",
+	"name": "Payment Template",
+	"version": "1.0.0",
+	"author": "Metrological Widgets",
+	"company": "Metrological Widgets",
+	"copyright": "Metrological Widgets 2017",
+	"description": "Demostrates how to set up a simple payment",
+	"categories": [
+		"video"
+	],
+	"scripts": "Javascript/init.js",
+	"images": {
+		"about": "Images/Icon.png",
+		"icon": {
+			"192x192": "Images/Icon.png"
+		}
+	}
+}
