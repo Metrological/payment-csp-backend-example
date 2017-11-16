@@ -23,9 +23,6 @@ Our example API endpoint for MPS has the following methods:
 ```GET /get-asset-status/?assetId=...&household=.... ```
 Responds with {"access":"true"}. The 'assetId' is a string, chosen by your service, that identifies the asset itself. Household is our way of identifying the user/settopbox. MPS is just a Payment Service Provider and stores only billing records, not asset information. So your service is responsible for holding the database of bought assets for households. Notice that the MPS does allow the client to buy the same asset multiple times. This allows you to implement assets that expire, for example. |
 
-```GET /get-asset-status/?assetId=...&household=....```
-Responds with {"access":"true"}. The 'assetId' is a string, chosen by your service, that identifies the asset itself. Household is our way of identifying the user/settopbox. MPS is just a Payment Service Provider and stores only billing records, not asset information. So your service is responsible for holding the database of bought assets for households. Notice that the MPS does allow the client to buy the same asset multiple times. This allows you to implement assets that expire, for example.  
-
 ```GET /get-asset-signature/?household=....&assetId=...```
 Responds with the (signed) payment request object for acquiring the specified asset. The example MAF app will call the MAF payment API with this payment object, which will send it to our payment service. The payment service will check the validity (signature) and will create a record in the operator's database. See example code.
 
