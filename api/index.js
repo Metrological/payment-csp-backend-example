@@ -246,6 +246,11 @@ function handleSubscriptionSignature(request, response) {
             return;
     }
 
+    var from = new Date();
+    description += ' ' + from.toISOString() + ' to ';
+    from.setSeconds(from.getSeconds() + ttl);
+    description += from.toISOString();
+
     var key = getSubscriptionKey(householdHash);
     redis.getReadClient().get(key, function(err, res) {
         if (err) {
