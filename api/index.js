@@ -247,9 +247,9 @@ function handleSubscriptionSignature(request, response) {
     }
 
     var from = new Date();
-    description += ' ' + from.toISOString() + ' to ';
+    description += ' (' + from.toISOString() + ' to ';
     from.setSeconds(from.getSeconds() + ttl);
-    description += from.toISOString();
+    description += from.toISOString() + ')';
 
     var key = getSubscriptionKey(householdHash);
     redis.getReadClient().get(key, function(err, res) {
