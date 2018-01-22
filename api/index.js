@@ -405,6 +405,10 @@ function handleGetSignature(request, response){
                 purchaseParams.description = 'The third test asset';
                 purchaseParams.price = 10000;
                 break;
+            case '5':
+                purchaseParams.description = '19.99 test asset';
+                purchaseParams.price = 1999;
+                break;
             default:
                 response.status(404).json({error: 'asset does not exist'});
                 return;
