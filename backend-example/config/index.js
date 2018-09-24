@@ -2,6 +2,7 @@ var allSettings = require('./settings');
 var _ = require('lodash');
 var settings = {}, env;
 var bodyParser = require('body-parser');
+var redis = require("redis");
 
 var init = function(cb){
     env = process.env.NODE_ENV || 'dev';
@@ -59,9 +60,19 @@ var getEnv = function(){
     return env;
 };
 
+var redisClient;
+var getRedisClient = function() {
+    var settings = getSettings();
+    if (!redisClient) {
+        redisClient = redis.createClient({host: settings.redis.host, port: settings.redis.port});
+    }
+    return redisClient;
+};
+
 module.exports = {
     getSettings: getSettings,
     init: init,
     initExpress: initExpress,
-    getEnv: getEnv
+    getEnv: getEnv,
+    getRedisClient: getRedisClient
 };

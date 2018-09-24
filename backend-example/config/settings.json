@@ -1,15 +1,20 @@
 {
     "all": {
-        "workers": 2,
-        "port": 3789,
         "redisHouseholdAssetsPrefix": "payment-csp-example:",
         "redisRecurringSubscriptions": "payment-csp-example-subscriptions",
-        "applicationBillingKey": "SECRET: CREATE AT http://dashboard.metrological.com/ (my applications > application > info > refresh billing key)"
+        "paymentHost": "https://payment-sdk.metrological.com/",
+        "applicationBillingKey": "SECRET: CREATE AT http://dashboard.metrological.com/ (my applications > application > info > refresh billing key)",
+        "redis": {
+            "host": "127.0.0.1",
+            "port": "6379"
+        },
+        "subscriptionAdditionalCheckTtl": 30
     },
     "dev": {
+        "port": 3789
     },
     "production": {
-        "workers": 2,
-        "port": 80
+        "port": 80,
+        "paymentHost": "Should be: https://payment.metrological.com/, but don't use this code 1-to-1 for production"
     }
 }

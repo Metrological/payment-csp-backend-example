@@ -7,6 +7,8 @@ Notice that this is just an example of how to use the MPS. For your specific app
 
 This example is meant for Content Service Providers (CSPs) and external app builders that already have an agreement with Metrological to build the app.
 
+Be aware that this example is purely made to explain what should be done. Redis is used as database because it has a simple interface. For production purposes, we advise that you use a relational database and do not 'expire' data in the way that we do in this example.
+
 # General architecture
 When a user buys content via your app, the following should happen:
 ![!sequence diagram](https://github.com/Metrological/payment-csp-backend-example/raw/master/sequence-diagram.png)

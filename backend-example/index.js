@@ -1,17 +1,19 @@
 var express = require('express'),
-    config = require('./config');
+    config = require('./config'),
+    scheduler = require('./scheduler');
 
 
-var startServer = function(){
-    config.init(function(err) {
-        if (err) {
-            console.error('init', err);
-            return;
-        }
-        var app = express();
-        config.initExpress(app);
-        require('./api').loadRoutes(app);
-    });
-};
+config.init(function(err) {
+    if (err) {
+        console.error('init', err);
+        return;
+    }
+    var app = express();
+    config.initExpress(app);
+    require('./api').loadRoutes(app);
 
-startServer();
+    // Start scheduler for automatically renewing subscriptions.
+    // Notice that when using a cluster, only one scheduler should has to be active.
+    scheduler.start();
+});
+
