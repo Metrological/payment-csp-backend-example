@@ -18,7 +18,7 @@ In short, your app API endpoint should provide a method to create a ***signed pa
 You will also need an endpoint for checking whether the user already has access to the asset, before actually showing a 'buy' option in the app at all (not depicted in the sequence diagram). This is another method that you will need.
 
 # Example
-The example has a fixed number of assets (movies) that you can buy. The bought assets will expire automatically after one 24 hours. The example uses Nodejs and Redis for persistent storage because it has very descriptive commands, but you'll probably use another database system. If you like to use the example code as the basis of your own implementation, feel free to do so. But if you do that, Metrological takes no responsibility for it, including (but not limited to) bugs and maintainance.
+The example has a fixed number of assets (movies) that you can buy. The bought assets will expire automatically after one 24 hours. The example uses Nodejs and Redis for persistent storage because it has very descriptive commands, but you'll probably use another database system. This code is open source. Feel free to use it. But if you do, Metrological takes no liability for it, including (but not limited to) bugs, data loss and maintainance.
 
 Our example API endpoint for MPS has the following methods:
 
