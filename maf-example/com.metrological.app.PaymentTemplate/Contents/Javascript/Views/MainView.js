@@ -47,9 +47,16 @@ var MainView = new MAF.Class( {
 													// Do a request to content owner backend to confirm
 													API.setAsset(response.result, function(setAssetRes){
 														if (setAssetRes.success){
-															//Play video
-															MAF.mediaplayer.playlist.set(new MAF.media.Playlist().addEntryByURL(setAssetRes.source));
-															MAF.mediaplayer.playlist.start();
+															profile.confirmPurchase(response, function (err) {
+																if (err) {
+																	console.log(err);
+																} else {
+																	console.log('Video purchase succesful');
+																	//Play video
+																	MAF.mediaplayer.playlist.set(new MAF.media.Playlist().addEntryByURL(setAssetRes.source));
+																	MAF.mediaplayer.playlist.start();
+																}
+															});
 														}
 													});
 												}
