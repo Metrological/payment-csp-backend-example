@@ -34,17 +34,17 @@ After a payment was inserted successfully in our payment servers, it sends back 
 
 Please consider a test/production endpoint. It may be handy to provide a method on the test endpoint to allow the app developers to clear an asset in your database so that they can test properly.
 
-# Recurring Billing
+# Subscription-based assets (Recurring Billing)
 Depending on the platform you are targeting, recurring billing might be an option. If you are in doubt please validate with us. 
 
-To setup the recurring billing, the payment object that you are sending back from your server needs to have ```subscription: true```. This will allow your backend to communicate directly to our backend. It is your server's responsibility to do timed calls to our backend to bill the enduser, our server will only act as a payment gateway.
+To setup the recurring billing, the payment object that you are sending back from your server needs to have ```subscription: true```. This will allow your backend to communicate directly to our backend to extend the subscriptions later on. It is your server's responsibility to do timed calls to our backend to bill the enduser, our server will only act as a payment gateway.
 
-Recurring billing has to have a couple of mandatory parts in your app:
+Recurring billing requires that you add the following items to your app:
 - Information page about your current subscription
-- Option to unsubscribe
-- ToS describing the right of recurring billing
+- Option for unsubscribing
+- ToS (terms of service) describing the right of recurring billing
 
-Whenever an user unsubscribes we recommend that you leave the content availible until the TTL of the old subscription has passed.
+Whenever an user unsubscribes we recommend that you leave the content available until the TTL (time to live) of the old subscription has expired.
 
 # Running it
 You can run the full example yourself:
