@@ -15,10 +15,6 @@
     },
     "production": {
         "port": 8080,
-        "paymentHost": "Should be: https://payment.metrological.com/, but don't use this code 1-to-1 for production",
-        "redis": {
-            "host": "127.0.0.1",
-            "port": "3789"
-        }
+        "paymentHost": "Should be: https://payment.metrological.com/, but don't use this code 1-to-1 for production"
     }
 }
