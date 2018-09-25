@@ -1,7 +1,7 @@
 {
     "all": {
-        "redisHouseholdAssetsPrefix": "payment-csp-example:",
-        "redisRecurringSubscriptions": "payment-csp-example-subscriptions",
+        "redisHouseholdAssetsPrefix": "payment-csp-example-assets:",
+        "redisRecurringSubscriptions": "payment-csp-example-subs",
         "paymentHost": "https://payment-sdk.metrological.com/",
         "applicationBillingKey": "SECRET: CREATE AT http://dashboard.metrological.com/ (my applications > application > info > refresh billing key)",
         "redis": {
@@ -14,7 +14,11 @@
         "port": 3789
     },
     "production": {
-        "port": 80,
-        "paymentHost": "Should be: https://payment.metrological.com/, but don't use this code 1-to-1 for production"
+        "port": 8080,
+        "paymentHost": "Should be: https://payment.metrological.com/, but don't use this code 1-to-1 for production",
+        "redis": {
+            "host": "127.0.0.1",
+            "port": "3789"
+        }
     }
 }
