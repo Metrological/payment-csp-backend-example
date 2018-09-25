@@ -34,6 +34,18 @@ After a payment was inserted successfully in our payment servers, it sends back 
 
 Please consider a test/production endpoint. It may be handy to provide a method on the test endpoint to allow the app developers to clear an asset in your database so that they can test properly.
 
+# Recurring Billing
+Depending on the platform you are targeting, recurring billing might be an option. If you are in doubt please validate with us. 
+
+To setup the recurring billing, the payment object that you are sending back from your server needs to have ```subscription: true```. This will allow your backend to communicate directly to our backend. It is your server's responsibility to do timed calls to our backend to bill the enduser, our server will only act as a payment gateway.
+
+Recurring billing has to have a couple of mandatory parts in your app:
+- Information page about your current subscription
+- Option to unsubscribe
+- ToS describing the right of recurring billing
+
+Whenever an user unsubscribes we recommend that you leave the content availible until the TTL of the old subscription has passed.
+
 # Running it
 You can run the full example yourself:
 1. Use the maf-sdk to run the 'payment example app' as bundled with this document
@@ -44,3 +56,6 @@ You can run the full example yourself:
 
 # And now?
 After you have created a fully working example (both an app and backend), that works in the MAF SDK (https://github.com/Metrological/maf3-sdk), your app should be able to work in production. For putting apps with in-app payments in production, we need to have an agreement with you and the operator(s) involved. Furthermore, we require that your backend service runs on HTTPS for security reasons.
+
+# Disclaimer
+It is your own responsibility to maintain the user database and all connections, this codebase is merely an example on how you could set it up. Metrological is not liable for any code hosted on your backend.
