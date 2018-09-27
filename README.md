@@ -1,5 +1,5 @@
 # Metrological Payment Service: Integration Guide for Content Service Providers
-Bas van Meurs, Metrological, October 2017
+Bas van Meurs, Metrological, September 2018
 
 This repository contains an example on how to build/extend an API endpoint for the Metrological Payment Service (MPS). MPS is a MAF service that can be used from a MAF app to offer payed content. For more information on the MAF-side of MPS, refer to the payment example MAF app in the maf-example folder.
 
@@ -16,6 +16,8 @@ When a user buys content via your app, the following should happen:
 In short, your app API endpoint should provide a method to create a ***signed payment object*** for the specific user/asset. The specific fields of this payment object are shown in the example. After the app / MAF / MPS communication has been completed, a ***signed payment receipt*** (basically a proof that the operator has received the information and will invoice it to the customer) is sent back, and you should register that the client may use the asset, and allow it from that moment onwards. For that, you will need another method.
 
 You will also need an endpoint for checking whether the user already has access to the asset, before actually showing a 'buy' option in the app at all (not depicted in the sequence diagram). This is another method that you will need.
+
+Please set an asset description like ```Monthly subscription on <App X>``` or ```<Asset name> on <App X>```
 
 # Example
 The example has a fixed number of assets (movies) that you can buy. The bought assets will expire automatically after one 24 hours. The example uses Nodejs and Redis for persistent storage because it has very descriptive commands, but you'll probably use another database system. This code is open source. Feel free to use it. But if you do, Metrological takes no liability for it, including (but not limited to) bugs, data loss and maintainance.
@@ -42,7 +44,8 @@ To setup the recurring billing, the payment object that you are sending back fro
 Recurring billing requires that you add the following items to your app:
 - Information page about your current subscription
 - Option for unsubscribing
-- ToS (terms of service) describing the right of recurring billing
+- Terms and Conditions
+- Privacy statement
 
 Whenever an user unsubscribes we recommend that you leave the content available until the TTL (time to live) of the old subscription has expired.
 
