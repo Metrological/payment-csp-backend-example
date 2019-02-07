@@ -133,10 +133,16 @@ function handleAssetSignature(request, response) {
         return;
     }
 
+    var currency = CURRENCY;
+
+    if (request.query.currency) {
+        currency = request.query.currency;
+    }
+
     var asset = ASSETS[request.query.assetId];
     var purchaseParams = {
         adult: false, //Indicates if the asset contains adult content
-        currency: CURRENCY, // i.e. EUR, QAR, USD
+        currency: currency, // i.e. EUR, QAR, USD
         price: asset.price, // Price of the asset including VAT per country
         id: request.query.assetId, //Id of the asset that should be both trackable by operator and own backend
         description: asset.title, // Asset Title shown in the dialog
@@ -178,7 +184,7 @@ function handleSaveAsset(request, response){
     var redisClient = config.getRedisClient();
 
     // Notice that using expiration of objects is not production-proof. We advice to use a relational database.
-    redisClient.setex(key, ttl, JSON.stringify({transactionId: transaction.transactionId, household: transaction.household, assetId: transaction.id}), function(err) {
+    redisClient.setex(key, ttl, JSON.stringify({transactionId: transaction.transactionId, currency: transaction.currency, household: transaction.household, assetId: transaction.id}), function(err) {
         if (err) {
             response.status(500).json({error: 'failure'});
             return;
@@ -257,7 +263,7 @@ function renewSubscription(key, cb) {
 
             var purchaseParams = {
                 adult: false,
-                currency: asset.currency,
+                currency: obj.currency || asset.currency,
                 price: asset.price,
                 id: obj.assetId,
                 description: "Subscription: " + asset.title,
